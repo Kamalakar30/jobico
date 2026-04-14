@@ -11,10 +11,11 @@ const jobRoutes = require("./routes/jobs");
 const jobFetchRoutes = require("./routes/jobFetch"); // ✅ FIXED
 
 // 🔥 CORS
+const cors = require("cors");
+
 app.use(cors({
-  origin: "http://localhost:3000",
+  origin: "*",
   methods: ["GET", "POST"],
-  credentials: true
 }));
 
 // 🔥 BODY PARSER
