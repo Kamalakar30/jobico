@@ -4,11 +4,12 @@ const Job = require("../models/Job");
 
 const router = express.Router();
 
+// 🔥 REFRESH JOBS (India + Remote)
 router.get("/refresh", async (req, res) => {
   try {
     let jobs = [];
 
-    // 🌍 REMOTIVE
+    // 🌍 REMOTIVE (USA/REMOTE)
     try {
       const remotiveRes = await axios.get("https://remotive.com/api/remote-jobs");
 
@@ -25,24 +26,27 @@ router.get("/refresh", async (req, res) => {
       );
 
     } catch (err) {
-      console.log("Remotive failed:", err.message);
+      console.log("Remotive error:", err.message);
     }
 
-    // 🇮🇳 ADZUNA
+    // 🇮🇳 ADZUNA (INDIA - MULTIPLE PAGES)
     try {
-      const adzunaRes = await axios.get(
-        "https://api.adzuna.com/v1/api/jobs/in/search/1",
-        {
-          params: {
-            app_id: "5c76b78f",
-            app_key: "39c7ff0ab7cdfe8240d37ed495b08725",
-            what: "developer",
-            results_per_page: 50,
-          },
-        }
-      );
+      let adzunaJobs = [];
 
-      const adzunaJobs = adzunaRes.data.results || [];
+      for (let i = 1; i <= 3; i++) { // 🔥 3 pages
+        const res = await axios.get(
+          `https://api.adzuna.com/v1/api/jobs/in/search/${i}`,
+          {
+            params: {
+              app_id: "5c76b78f",
+              app_key: "39c7ff0ab7cdfe8240d37ed495b08725",
+              what: "software developer",
+            },
+          }
+        );
+
+        adzunaJobs.push(...res.data.results);
+      }
 
       jobs.push(
         ...adzunaJobs.map(j => ({
@@ -55,15 +59,15 @@ router.get("/refresh", async (req, res) => {
       );
 
     } catch (err) {
-      console.log("Adzuna failed:", err.message);
+      console.log("Adzuna error:", err.message);
     }
 
-    // 🔥 SAVE
+    // 🔥 SAVE TO DB
     await Job.deleteMany();
     await Job.insertMany(jobs);
 
     res.json({
-      message: "Jobs cached",
+      message: "Jobs cached successfully",
       total: jobs.length,
     });
 
@@ -73,6 +77,7 @@ router.get("/refresh", async (req, res) => {
   }
 });
 
+// 🔥 GET JOBS
 router.get("/", async (req, res) => {
   const jobs = await Job.find();
   res.json(jobs);
