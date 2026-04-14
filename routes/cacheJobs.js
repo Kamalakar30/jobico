@@ -1,3 +1,10 @@
+const express = require("express");
+const axios = require("axios");
+const Job = require("../models/Job");
+
+const router = express.Router(); // ✅ VERY IMPORTANT
+
+// 🔥 REFRESH (India + Remote)
 router.get("/refresh", async (req, res) => {
   try {
     const [remotiveRes, adzunaRes] = await Promise.all([
@@ -24,7 +31,6 @@ router.get("/refresh", async (req, res) => {
         location: j.candidate_required_location,
         url: j.url,
       })),
-
       ...adzunaJobs.map(j => ({
         jobId: "adz-" + j.id,
         title: j.title,
@@ -36,10 +42,18 @@ router.get("/refresh", async (req, res) => {
 
     await Job.insertMany(jobs);
 
-    res.json({ message: "Jobs cached (India + Remote)" });
+    res.json({ message: "Jobs cached successfully" });
 
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Error fetching jobs" });
   }
 });
+
+// 🔥 GET JOBS
+router.get("/", async (req, res) => {
+  const jobs = await Job.find();
+  res.json(jobs);
+});
+
+module.exports = router; // ✅ IMPORTANT
