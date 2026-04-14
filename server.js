@@ -14,8 +14,12 @@ const jobFetchRoutes = require("./routes/jobFetch"); // ✅ FIXED
 const cors = require("cors");
 
 app.use(cors({
-  origin: "*",
+  origin: [
+    "http://localhost:3000",
+    "https://jobico.netlify.app",   // 🔥 your Netlify URL (update if different)
+  ],
   methods: ["GET", "POST"],
+  credentials: true
 }));
 
 // 🔥 BODY PARSER
