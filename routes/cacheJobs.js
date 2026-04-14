@@ -4,14 +4,14 @@ const Job = require("../models/Job");
 
 const router = express.Router();
 
-// 🔥 FETCH + STORE JOBS
+// 🔥 REFRESH ROUTE
 router.get("/refresh", async (req, res) => {
   try {
     const response = await axios.get("https://remotive.com/api/remote-jobs");
 
     const jobs = response.data.jobs.slice(0, 50);
 
-    await Job.deleteMany(); // clear old jobs
+    await Job.deleteMany();
 
     const formatted = jobs.map((job) => ({
       jobId: job.id,
@@ -31,7 +31,7 @@ router.get("/refresh", async (req, res) => {
   }
 });
 
-// 🔥 GET JOBS (FAST)
+// 🔥 GET ROUTE
 router.get("/", async (req, res) => {
   const jobs = await Job.find();
   res.json(jobs);
